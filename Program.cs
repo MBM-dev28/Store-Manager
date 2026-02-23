@@ -4,6 +4,7 @@ using Store_Manager.Data;
 using Store_Manager.Data.Entities;
 using Store_Manager.Services.ChainService;
 using Store_Manager.Services.StoreService;
+using Store_Manager.Services.UserService;
 using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IChainService, ChainService>();
 builder.Services.AddScoped<IStoreService, StoreService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

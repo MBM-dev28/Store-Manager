@@ -12,6 +12,7 @@ namespace Store_Manager.Data
 
         public DbSet<Chain> Chains { get; set; }
         public DbSet<Store> Stores { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +24,10 @@ namespace Store_Manager.Data
 
             modelBuilder.Entity<Store>()
                 .HasIndex(s => s.Number)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
                 .IsUnique();
         }
     }
