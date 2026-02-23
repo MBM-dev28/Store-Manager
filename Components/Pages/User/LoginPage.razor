@@ -22,9 +22,15 @@
     private string email = string.Empty;
     private string password = string.Empty;
 
+    private string? errorMessage = string.Empty;
 
     private async Task Login()
     {
-        
+        try
+        {
+            errorMessage = null;
+            await UserService.LoginUserAsync(email, password);
+        }
+        catch(InvalidOperationException ex) { errorMessage = ex.Message; }
     }
 }
