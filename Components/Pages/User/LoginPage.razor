@@ -1,6 +1,6 @@
 ﻿@page "/employee-login"
 
-<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;"> <!--vh = viewport height. 80 is % -->
     <div class="card p-4 shadow-sm" style="width: 100%; max-width: 400px;">
         <h4 class="mb-4 text-center">Employee Login</h4>
 
@@ -14,11 +14,17 @@
             <input class="form-control" type="password" @bind="password" />
         </div>
 
-        <button class="btn btn-primary w-100">Login</button>
+        <button class="btn btn-primary w-100" @onclick="Login" >Login</button>
     </div>
 </div>
 
 @code {
     private string email = string.Empty;
     private string password = string.Empty;
+
+
+    private void Login()
+    {
+        
+    }
 }
