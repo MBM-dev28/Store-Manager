@@ -1,4 +1,4 @@
-namespace Store_Manager.Data.Entities
+namespace Store_Manager.Services.UserService.UserRoles
 {
     public enum UserRole
     {

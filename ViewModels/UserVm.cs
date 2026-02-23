@@ -1,4 +1,4 @@
-using Store_Manager.Data.Entities;
+using Store_Manager.Services.UserService.UserRoles;
 
 namespace Store_Manager.ViewModels
 {

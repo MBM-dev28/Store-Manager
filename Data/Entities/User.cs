@@ -1,3 +1,5 @@
+using Store_Manager.Services.UserService.UserRoles;
+
 namespace Store_Manager.Data.Entities
 {
     public class User
