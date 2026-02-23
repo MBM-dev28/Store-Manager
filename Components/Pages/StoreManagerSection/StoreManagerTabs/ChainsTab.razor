@@ -1,0 +1,188 @@
+@inject IChainService ChainService
+@using Store_Manager.Services.ChainService
+@using Store_Manager.ViewModels
+
+@if (errorMessage is not null)
+{
+    <div class="alert alert-danger alert-dismissible">
+        @errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
+
+<SelectableList Items="chains"
+                Columns="chainColumns"
+                @bind-SelectedItem="selectedChain" />
+
+<div class="d-flex gap-2 mt-2">
+    <button class="btn btn-primary" @onclick="OpenCreateChainModal">Add Chain</button>
+    @if (selectedChain is not null)
+    {
+        <button class="btn btn-outline-primary" @onclick="() => OpenEditChainModal(selectedChain)">Edit</button>
+        <button class="btn btn-outline-danger" @onclick="() => OpenDeleteChainModal(selectedChain)">Delete</button>
+    }
+</div>
+
+<!-- Create Chain Modal -->
+@if (showCreateChainModal)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Chain</h5>
+                    <button class="btn-close" @onclick="CloseModals"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input class="form-control" @bind="formName" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseModals">Cancel</button>
+                    <button class="btn btn-primary" @onclick="CreateChain">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Edit Chain Modal -->
+@if (showEditChainModal)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Chain</h5>
+                    <button class="btn-close" @onclick="CloseModals"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input class="form-control" @bind="formName" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseModals">Cancel</button>
+                    <button class="btn btn-primary" @onclick="UpdateChain">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Delete Chain Modal -->
+@if (showDeleteChainModal && selectedChain is not null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Chain</h5>
+                    <button class="btn-close" @onclick="CloseModals"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete <strong>@selectedChain.Name</strong>?
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseModals">Cancel</button>
+                    <button class="btn btn-danger" @onclick="DeleteChain">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<ChainVm> chains = [];
+
+    private readonly List<ColumnDefinition<ChainVm>> chainColumns =
+    [
+        new("Name", c => c.Name),
+        new("Created On", c => c.CreatedOn.ToString("g")),
+        new("Modified On", c => c.ModifiedOn?.ToString("g") ?? "-"),
+        new("Stores", c => c.StoreCount.ToString()),
+        new("Id", c => c.Id.ToString()),
+    ];
+    private string? errorMessage;
+
+    private bool showCreateChainModal;
+    private bool showEditChainModal;
+    private bool showDeleteChainModal;
+
+    private ChainVm? selectedChain;
+    private string formName = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadChains();
+    }
+
+    private async Task LoadChains() => chains = await ChainService.GetAllChainsAsync();
+
+    private void CloseModals()
+    {
+        showCreateChainModal = false;
+        showEditChainModal = false;
+        showDeleteChainModal = false;
+    }
+
+    private void OpenCreateChainModal()
+    {
+        formName = string.Empty;
+        showCreateChainModal = true;
+    }
+
+    private void OpenEditChainModal(ChainVm chain)
+    {
+        formName = chain.Name;
+        showEditChainModal = true;
+    }
+
+    private void OpenDeleteChainModal(ChainVm chain) => showDeleteChainModal = true;
+
+    private async Task CreateChain()
+    {
+        try
+        {
+            errorMessage = null;
+            await ChainService.CreateChainAsync(formName);
+            await LoadChains();
+            CloseModals();
+        }
+        catch (InvalidOperationException ex) { errorMessage = ex.Message; }
+    }
+
+    private async Task UpdateChain()
+    {
+        if (selectedChain is null) return;
+        try
+        {
+            errorMessage = null;
+            await ChainService.UpdateChainAsync(selectedChain.Id, formName);
+            await LoadChains();
+            selectedChain = chains.FirstOrDefault(c => c.Id == selectedChain.Id);
+            CloseModals();
+        }
+        catch (InvalidOperationException ex) { errorMessage = ex.Message; }
+    }
+
+    private async Task DeleteChain()
+    {
+        if (selectedChain is null) return;
+        try
+        {
+            errorMessage = null;
+            await ChainService.DeleteChainAsync(selectedChain.Id);
+            selectedChain = null;
+            await LoadChains();
+            CloseModals();
+        }
+        catch (InvalidOperationException ex) { errorMessage = ex.Message; }
+    }
+}

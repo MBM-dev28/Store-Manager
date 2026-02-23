@@ -1,0 +1,316 @@
+@inject IStoreService StoreService
+@inject IChainService ChainService
+@using Store_Manager.Services.StoreService
+@using Store_Manager.Services.ChainService
+@using Store_Manager.ViewModels
+
+@if (errorMessage is not null)
+{
+    <div class="alert alert-danger alert-dismissible">
+        @errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
+
+<SelectableList Items="stores"
+                Columns="storeColumns"
+                @bind-SelectedItem="selectedStore" />
+
+<div class="d-flex gap-2 mt-2">
+    <button class="btn btn-primary" @onclick="OpenCreateStoreModal">Add Store</button>
+    @if (selectedStore is not null)
+    {
+        <button class="btn btn-outline-primary" @onclick="() => OpenEditStoreModal(selectedStore)">Edit</button>
+        <button class="btn btn-outline-danger" @onclick="() => OpenDeleteStoreModal(selectedStore)">Delete</button>
+        @if (selectedStore.ChainName is null)
+        {
+            <button class="btn btn-outline-secondary" @onclick="() => OpenAssignChainModal(selectedStore)">Assign Chain</button>
+        }
+        else
+        {
+            <button class="btn btn-outline-secondary" @onclick="() => RemoveFromChain(selectedStore)">Remove from Chain</button>
+        }
+    }
+</div>
+
+<!-- Create Store Modal -->
+@if (showCreateStoreModal)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Store</h5>
+                    <button class="btn-close" @onclick="CloseModals"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Number</label>
+                        <input class="form-control" type="number" @bind="formNumber" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input class="form-control" @bind="formName" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseModals">Cancel</button>
+                    <button class="btn btn-primary" @onclick="CreateStore">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Edit Store Modal -->
+@if (showEditStoreModal)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Store</h5>
+                    <button class="btn-close" @onclick="CloseModals"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Number</label>
+                        <input class="form-control" type="number" @bind="formNumber" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input class="form-control" @bind="formName" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <input class="form-control" @bind="formAddress" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Postal Code</label>
+                        <input class="form-control" @bind="formPostalCode" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">City</label>
+                        <input class="form-control" @bind="formCity" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input class="form-control" @bind="formPhone" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input class="form-control" @bind="formEmail" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Store Owner</label>
+                        <input class="form-control" @bind="formStoreOwner" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseModals">Cancel</button>
+                    <button class="btn btn-primary" @onclick="UpdateStore">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Delete Store Modal -->
+@if (showDeleteStoreModal && selectedStore is not null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Store</h5>
+                    <button class="btn-close" @onclick="CloseModals"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete <strong>@selectedStore.Name</strong>?
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseModals">Cancel</button>
+                    <button class="btn btn-danger" @onclick="DeleteStore">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Assign Chain Modal -->
+@if (showAssignChainModal && selectedStore is not null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Chain to @selectedStore.Name</h5>
+                    <button class="btn-close" @onclick="CloseModals"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Select Chain</label>
+                    <select class="form-select" @bind="selectedChainId">
+                        <option value="@Guid.Empty">-- Select a chain --</option>
+                        @foreach (var chain in chains)
+                        {
+                            <option value="@chain.Id">@chain.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseModals">Cancel</button>
+                    <button class="btn btn-primary" @onclick="AssignChain">Assign</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<StoreVm> stores = [];
+    private List<ChainVm> chains = [];
+
+    //for my dynamic list. using my data extractor that i made in the "Shared" folder.
+    private readonly List<ColumnDefinition<StoreVm>> storeColumns =
+    [
+        new("Number", s => s.Number.ToString()),
+        new("Name", s => s.Name),
+        new("City", s => s.City ?? "-"),
+        new("Chain", s => s.ChainName ?? "-"),
+    ];
+
+
+    private string? errorMessage;
+
+    private bool showCreateStoreModal;
+    private bool showEditStoreModal;
+    private bool showDeleteStoreModal;
+    private bool showAssignChainModal;
+
+    private StoreVm? selectedStore;
+
+    private int formNumber;
+    private string formName = string.Empty;
+    private string? formAddress;
+    private string? formPostalCode;
+    private string? formCity;
+    private string? formPhone;
+    private string? formEmail;
+    private string? formStoreOwner;
+    private Guid selectedChainId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStores();
+        await LoadChains();
+    }
+
+    private async Task LoadStores() => stores = await StoreService.GetAllStoresAsync();
+    private async Task LoadChains() => chains = await ChainService.GetAllChainsAsync();
+
+    private void CloseModals()
+    {
+        showCreateStoreModal = false;
+        showEditStoreModal = false;
+        showDeleteStoreModal = false;
+        showAssignChainModal = false;
+    }
+
+    private void OpenCreateStoreModal()
+    {
+        formNumber = 0;
+        formName = string.Empty;
+        showCreateStoreModal = true;
+    }
+
+    private void OpenEditStoreModal(StoreVm store)
+    {
+        formNumber = store.Number;
+        formName = store.Name;
+        formAddress = store.Address;
+        formPostalCode = store.PostalCode;
+        formCity = store.City;
+        formPhone = store.Phone;
+        formEmail = store.Email;
+        formStoreOwner = store.StoreOwner;
+        showEditStoreModal = true;
+    }
+
+    private void OpenDeleteStoreModal(StoreVm store) => showDeleteStoreModal = true;
+
+    private void OpenAssignChainModal(StoreVm store)
+    {
+        selectedChainId = Guid.Empty;
+        showAssignChainModal = true;
+    }
+
+    private async Task CreateStore()
+    {
+        try
+        {
+            errorMessage = null;
+            await StoreService.CreateStoreAsync(formNumber, formName);
+            await LoadStores();
+            CloseModals();
+        }
+        catch (InvalidOperationException ex) { errorMessage = ex.Message; }
+    }
+
+    private async Task UpdateStore()
+    {
+        if (selectedStore is null) return;
+        try
+        {
+            errorMessage = null;
+            await StoreService.UpdateStoreAsync(selectedStore.Id, formNumber, formName, formAddress, formPostalCode, formCity, formPhone, formEmail, formStoreOwner);
+            await LoadStores();
+            selectedStore = stores.FirstOrDefault(s => s.Id == selectedStore.Id);
+            CloseModals();
+        }
+        catch (InvalidOperationException ex) { errorMessage = ex.Message; }
+    }
+
+    private async Task DeleteStore()
+    {
+        if (selectedStore is null) return;
+        try
+        {
+            errorMessage = null;
+            await StoreService.DeleteStoreAsync(selectedStore.Id);
+            selectedStore = null;
+            await LoadStores();
+            CloseModals();
+        }
+        catch (InvalidOperationException ex) { errorMessage = ex.Message; }
+    }
+
+    private async Task AssignChain()
+    {
+        if (selectedStore is null || selectedChainId == Guid.Empty) return;
+        try
+        {
+            errorMessage = null;
+            await StoreService.AssignToChainAsync(selectedStore.Id, selectedChainId);
+            await LoadStores();
+            selectedStore = stores.FirstOrDefault(s => s.Id == selectedStore.Id);
+            CloseModals();
+        }
+        catch (InvalidOperationException ex) { errorMessage = ex.Message; }
+    }
+
+    private async Task RemoveFromChain(StoreVm store)
+    {
+        try
+        {
+            errorMessage = null;
+            await StoreService.RemoveFromChainAsync(store.Id);
+            await LoadStores();
+            selectedStore = stores.FirstOrDefault(s => s.Id == store.Id);
+        }
+        catch (InvalidOperationException ex) { errorMessage = ex.Message; }
+    }
+}

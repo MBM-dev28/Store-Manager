@@ -1,0 +1,40 @@
+<ul class="nav nav-tabs mb-3">  <!-- bootstrap styling. mb = margin bottom (spacing) -->
+    @foreach (var tab in tabs)
+    {
+        <li class="nav-item">
+            <!-- set active tab to have "active" styling -->
+            <button class="nav-link @(activeTab == tab ? "active" : "")"  
+                    @onclick="() => SetActive(tab)">
+                @tab.Title
+            </button>
+        </li>
+    }
+</ul>
+
+<!-- passing my Tabs component instance to all child components (tab.razor component)-->
+<CascadingValue Value="this"> 
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; } //blazor convention 
+
+    private List<Tab> tabs = [];
+    private Tab? activeTab;
+
+    internal void AddTab(Tab tab)
+    {
+        tabs.Add(tab);
+        if (tabs.Count == 1)
+            activeTab = tab;
+        StateHasChanged();
+    }
+
+    internal bool IsActive(Tab tab) => activeTab == tab;
+
+    internal void SetActive(Tab tab)
+    {
+        activeTab = tab;
+        StateHasChanged();
+    }
+}

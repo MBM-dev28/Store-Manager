@@ -1,0 +1,17 @@
+@if (Parent.IsActive(this))
+{
+    @ChildContent
+}
+
+@code {
+    [CascadingParameter] private Tabs Parent { get; set; } = null!;
+
+    [Parameter] public string Title { get; set; } = null!;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Parent.AddTab(this);
+    }
+}

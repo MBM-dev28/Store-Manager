@@ -1,0 +1,36 @@
+@typeparam TItem where TItem : notnull
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            @foreach (var col in Columns)
+            {
+                <th>@col.Header</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Items)
+        {
+            <tr class="@(IsSelected(item) ? "table-primary" : "")"
+                style="cursor: pointer;"
+                @onclick="() => SelectItem(item)">
+                @foreach (var col in Columns)
+                {
+                    <td>@col.Value(item)</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter] public IEnumerable<TItem> Items { get; set; } = [];
+    [Parameter] public IEnumerable<ColumnDefinition<TItem>> Columns { get; set; } = [];
+    [Parameter] public TItem? SelectedItem { get; set; }
+    [Parameter] public EventCallback<TItem> SelectedItemChanged { get; set; }
+
+    private bool IsSelected(TItem item) => EqualityComparer<TItem>.Default.Equals(item, SelectedItem);
+
+    private async Task SelectItem(TItem item) => await SelectedItemChanged.InvokeAsync(item);
+}
