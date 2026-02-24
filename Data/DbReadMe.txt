@@ -6,3 +6,7 @@ Add-Migration <NAME>
 
 //command for updating
 Update-Database
+
+
+//server name
+(localdb)\MSSQLLocalDB
