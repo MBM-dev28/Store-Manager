@@ -1,5 +1,8 @@
 @page "/store-manager"
+@inject IUserSession UserSession
+@inject NavigationManager NavigationManager
 @using Store_Manager.Components.Pages.StoreManagerSection.StoreManagerTabs
+@using Store_Manager.Services.UserService
 
 <PageTitle>Store Manager</PageTitle>
 
@@ -13,3 +16,11 @@
         <ChainsTab />
     </Tab>
 </Tabs>
+
+@code {
+    protected override void OnInitialized()
+    {
+        if (!UserSession.IsLoggedIn)
+            NavigationManager.NavigateTo("/employee-login");
+    }
+}

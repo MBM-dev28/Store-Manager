@@ -35,11 +35,14 @@
             </div>
         }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="store-manager">
-                <span class="bi bi-shop-nav-menu" aria-hidden="true"></span> Store Manager
-            </NavLink>
-        </div>
+        @if (UserSession.IsLoggedIn)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="store-manager">
+                    <span class="bi bi-shop-nav-menu" aria-hidden="true"></span> Store Manager
+                </NavLink>
+            </div>
+        }
 
         @if (UserSession.IsAdmin())
         {
