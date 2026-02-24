@@ -9,10 +9,12 @@ namespace Store_Manager.Services.UserService
     public class UserService : IUserService
     {
         private readonly ApplicationDbContext _db;
+        private readonly IUserSession _userSession;
 
-        public UserService(ApplicationDbContext db)
+        public UserService(ApplicationDbContext db, IUserSession userSession)
         {
             _db = db;
+            _userSession = userSession;
         }
 
         public async Task<UserVm> LoginUserAsync(string email, string password)
@@ -31,6 +33,9 @@ namespace Store_Manager.Services.UserService
 
         public async Task<UserVm> CreateUserAsync(string name, string email, string password, UserRole role)
         {
+            if (!_userSession.IsAdmin())
+                throw new UnauthorizedAccessException("Only administrators can create users.");
+
             var emailExists = await _db.Users.AnyAsync(u => u.Email == email);
             if (emailExists)
                 throw new InvalidOperationException("A user with that email already exists.");
