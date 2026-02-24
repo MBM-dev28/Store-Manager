@@ -5,6 +5,7 @@ using Store_Manager.Data.Entities;
 using Store_Manager.Services.ChainService;
 using Store_Manager.Services.StoreService;
 using Store_Manager.Services.UserService;
+using Store_Manager.Services.UserService.UserRoles;
 using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -89,6 +90,26 @@ using (var scope = app.Services.CreateScope())
                 CreatedOn = DateTime.UtcNow
             }
         );
+
+        db.SaveChanges();
+    }
+
+    //seed min admnin.
+    if (!db.Users.Any(u => u.Role == UserRole.Administrator))
+    {
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        var bytes = System.Text.Encoding.UTF8.GetBytes("admin123");
+        var hash = sha256.ComputeHash(bytes);
+        var passwordHash = Convert.ToBase64String(hash);
+
+        db.Users.Add(new User
+        {
+            Name = "Admin",
+            Email = "admin@optikit.dk",
+            PasswordHash = passwordHash,
+            Role = UserRole.Administrator,
+            CreatedOn = DateTime.UtcNow
+        });
 
         db.SaveChanges();
     }

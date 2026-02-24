@@ -1,4 +1,7 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject IUserSession UserSession
+@using Store_Manager.Services.UserService
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Store Manager</a>
     </div>
@@ -25,6 +28,29 @@
                 <span class="bi bi-shop-nav-menu" aria-hidden="true"></span> Store Manager
             </NavLink>
         </div>
+
+        @if (UserSession.IsAdmin())
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin">
+                    <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Admin
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
 
+@code {
+    protected override void OnInitialized()
+    {
+        // Subscribe to session changes so the nav re-renders when the user logs in or out.
+        // Without this, the nav would only render once on load and never update.
+        UserSession.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        // Unsubscribe when the component is removed to avoid memory leaks.
+        UserSession.OnChange -= StateHasChanged;
+    }
+}

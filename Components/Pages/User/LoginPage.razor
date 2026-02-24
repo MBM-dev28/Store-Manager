@@ -1,5 +1,7 @@
 ﻿@page "/employee-login"
 @inject IUserService UserService
+@inject IUserSession UserSession
+@inject NavigationManager NavigationManager
 @using Store_Manager.Services.UserService
 
 
@@ -36,7 +38,9 @@
         try
         {
             errorMessage = null;
-            await UserService.LoginUserAsync(email, password);
+            var user = await UserService.LoginUserAsync(email, password);
+            UserSession.SetUser(user);
+            NavigationManager.NavigateTo("/");
             
         }
         catch(InvalidOperationException ex) { errorMessage = ex.Message; }

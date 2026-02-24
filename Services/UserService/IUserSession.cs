@@ -10,5 +10,6 @@ namespace Store_Manager.Services.UserService
         bool IsAdmin();
         void SetUser(UserVm user);
         void ClearUser();
+        event Action? OnChange;
     }
 }

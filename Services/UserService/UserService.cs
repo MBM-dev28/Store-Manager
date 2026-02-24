@@ -17,6 +17,13 @@ namespace Store_Manager.Services.UserService
             _userSession = userSession;
         }
 
+        public async Task<List<UserVm>> GetAllUsersAsync()
+        {
+            return await _db.Users
+                .Select(u => MapToVm(u))
+                .ToListAsync();
+        }
+
         public async Task<UserVm> LoginUserAsync(string email, string password)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
