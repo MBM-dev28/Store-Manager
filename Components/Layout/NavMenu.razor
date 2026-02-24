@@ -1,4 +1,5 @@
 ﻿@inject IUserSession UserSession
+@inject NavigationManager NavigationManager
 @using Store_Manager.Services.UserService
 
 <div class="top-row ps-3 navbar navbar-dark">
@@ -17,11 +18,22 @@
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="employee-login">
-                <span class="bi bi-shop-nav-menu" aria-hidden="true"></span> Login
-            </NavLink>
-        </div>
+        @if (UserSession.IsLoggedIn)
+        {
+            <div class="nav-item px-3">
+                <button class="nav-link btn btn-link" @onclick="Logout">
+                    <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Logout
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="employee-login">
+                    <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Login
+                </NavLink>
+            </div>
+        }
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="store-manager">
@@ -45,7 +57,13 @@
     {
         // Subscribe to session changes so the nav re-renders when the user logs in or out.
         // Without this, the nav would only render once on load and never update.
-        UserSession.OnChange += StateHasChanged;
+      UserSession.OnChange += StateHasChanged;
+    }
+
+    private void Logout()
+    {
+        UserSession.ClearUser();
+        NavigationManager.NavigateTo("/employee-login");
     }
 
     public void Dispose()
