@@ -53,6 +53,30 @@
                         <label class="form-label">Name</label>
                         <input class="form-control" @bind="formName" />
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <input class="form-control" @bind="formAddress" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Postal Code</label>
+                        <input class="form-control" @bind="formPostalCode" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">City</label>
+                        <input class="form-control" @bind="formCity" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input class="form-control" @bind="formPhone" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input class="form-control" type="email" @bind="formEmail" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Store Owner</label>
+                        <input class="form-control" @bind="formStoreOwner" />
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" @onclick="CloseModals">Cancel</button>
@@ -224,6 +248,12 @@
     {
         formNumber = 0;
         formName = string.Empty;
+        formAddress = null;
+        formPostalCode = null;
+        formCity = null;
+        formPhone = null;
+        formEmail = null;
+        formStoreOwner = null;
         showCreateStoreModal = true;
     }
 
@@ -253,7 +283,7 @@
         try
         {
             errorMessage = null;
-            await StoreService.CreateStoreAsync(formNumber, formName);
+            await StoreService.CreateStoreAsync(formNumber, formName, formAddress, formPostalCode, formCity, formPhone, formEmail, formStoreOwner);
             await LoadStores();
             CloseModals();
         }

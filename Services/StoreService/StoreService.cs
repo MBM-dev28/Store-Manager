@@ -22,7 +22,7 @@ namespace Store_Manager.Services.StoreService
                 .ToListAsync();
         }
 
-        public async Task<StoreVm> CreateStoreAsync(int number, string name)
+        public async Task<StoreVm> CreateStoreAsync(int number, string name, string? address, string? postalCode, string? city, string? phone, string? email, string? storeOwner)
         {
             var numberExists = await _db.Stores.AnyAsync(s => s.Number == number);
             if (numberExists)
@@ -33,6 +33,12 @@ namespace Store_Manager.Services.StoreService
                 Id = Guid.NewGuid(),
                 Number = number,
                 Name = name,
+                Address = address,
+                PostalCode = postalCode,
+                City = city,
+                Phone = phone,
+                Email = email,
+                StoreOwner = storeOwner,
                 CreatedOn = DateTime.UtcNow
             };
 
