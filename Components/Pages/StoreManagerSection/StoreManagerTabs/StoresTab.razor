@@ -14,7 +14,7 @@
 
 <SelectableList Items="stores"
                 Columns="storeColumns"
-                @bind-SelectedItem="selectedStore" />
+                @bind-SelectedItem="selectedStore" /> <!-- EventCallback from list component will set the value here. -->
 
 <div class="d-flex gap-2 mt-2">
     <button class="btn btn-primary" @onclick="OpenCreateStoreModal">Add Store</button>
@@ -191,7 +191,7 @@
     private bool showDeleteStoreModal;
     private bool showAssignChainModal;
 
-    private StoreVm? selectedStore;
+    private StoreVm? selectedStore; //since im using eventcallback from the child component we dont need to use StateHasChanged() as its part of the callback. (this is specific to Eventcallbacks - aka not Action<> or Func callbacks)
 
     private int formNumber;
     private string formName = string.Empty;

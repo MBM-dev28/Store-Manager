@@ -1,4 +1,4 @@
-@typeparam TItem where TItem : notnull
+@typeparam TItem where TItem : notnull //type is infered when provided in another component.
 
 <table class="table table-hover">
     <thead>
@@ -26,11 +26,11 @@
 
 @code {
     [Parameter] public IEnumerable<TItem> Items { get; set; } = [];
-    [Parameter] public IEnumerable<ColumnDefinition<TItem>> Columns { get; set; } = [];
+    [Parameter] public IEnumerable<ColumnDefinition<TItem>> Columns { get; set; } = []; // methods defining mapping for each column. i also have the Header name here.
     [Parameter] public TItem? SelectedItem { get; set; }
     [Parameter] public EventCallback<TItem> SelectedItemChanged { get; set; }
 
-    private bool IsSelected(TItem item) => EqualityComparer<TItem>.Default.Equals(item, SelectedItem);
+    private bool IsSelected(TItem item) => EqualityComparer<TItem>.Default.Equals(item, SelectedItem); //here i must admit it is taken straight from an example. but it should just compare the two objects.
 
     private async Task SelectItem(TItem item) => await SelectedItemChanged.InvokeAsync(item);
 }
