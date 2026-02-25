@@ -203,8 +203,15 @@
     [
         new("Number", s => s.Number.ToString()),
         new("Name", s => s.Name),
+        new("Address", s => s.Address ?? "-"),
+        new("Postal Code", s => s.PostalCode ?? "-"),
         new("City", s => s.City ?? "-"),
+        new("Phone", s => s.Phone ?? "-"),
+        new("Email", s => s.Email ?? "-"),
+        new("Store Owner", s => s.StoreOwner ?? "-"),
         new("Chain", s => s.ChainName ?? "-"),
+        new("Created On", s => s.CreatedOn.ToString("g")),
+        new("Modified On", s => s.ModifiedOn?.ToString("g") ?? "-"),
     ];
 
 
