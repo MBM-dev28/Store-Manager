@@ -12,7 +12,9 @@
     </div>
 }
 
-<SelectableList Items="stores"
+<input class="form-control mb-2" placeholder="Search stores..." @bind="searchTerm" @bind:event="oninput" />
+
+<SelectableList Items="FilteredStores"
                 Columns="storeColumns"
                 @bind-SelectedItem="selectedStore" /> <!-- EventCallback from list component will set the value here. -->
 
@@ -196,6 +198,16 @@
 
 @code {
     private List<StoreVm> stores = [];
+    private string searchTerm = string.Empty;
+
+    private IEnumerable<StoreVm> FilteredStores => stores
+        .Where(s => string.IsNullOrWhiteSpace(searchTerm) ||
+                    s.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    s.Number.ToString().Contains(searchTerm) ||
+                    s.City?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true ||
+                    s.ChainName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true);
+
+    // Need this so i have the chains to assign to stores.
     private List<ChainVm> chains = [];
 
     //for my dynamic list. using my data extractor that i made in the "Shared" folder.

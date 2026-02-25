@@ -10,7 +10,9 @@
     </div>
 }
 
-<SelectableList Items="chains"
+<input class="form-control mb-2" placeholder="Search chains..." @bind="searchTerm" @bind:event="oninput" />
+
+<SelectableList Items="FilteredChains"
                 Columns="chainColumns"
                 @bind-SelectedItem="selectedChain" />
 
@@ -100,6 +102,11 @@
 
 @code {
     private List<ChainVm> chains = [];
+    private string searchTerm = string.Empty;
+
+    private IEnumerable<ChainVm> FilteredChains => chains
+        .Where(c => string.IsNullOrWhiteSpace(searchTerm) ||
+                    c.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
 
     private readonly List<ColumnDefinition<ChainVm>> chainColumns =
     [
