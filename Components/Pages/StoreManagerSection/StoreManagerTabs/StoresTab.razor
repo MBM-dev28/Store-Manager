@@ -287,6 +287,12 @@
 
     private async Task CreateStore()
     {
+        if (string.IsNullOrWhiteSpace(formName))
+        {
+            errorMessage = "Name is required.";
+            return;
+        }
+
         try
         {
             errorMessage = null;

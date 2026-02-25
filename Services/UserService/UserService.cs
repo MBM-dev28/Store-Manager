@@ -62,6 +62,21 @@ namespace Store_Manager.Services.UserService
             return MapToVm(user);
         }
 
+        public async Task DeleteUserAsync(int id)
+        {
+            if (!_userSession.IsAdmin())
+                throw new UnauthorizedAccessException("Only administrators can delete users.");
+
+            var user = await _db.Users.FindAsync(id)
+                ?? throw new InvalidOperationException("User not found.");
+
+            if (user.Email == "admin@optikit.dk")
+                throw new InvalidOperationException("The seeded admin account cannot be deleted.");
+
+            _db.Users.Remove(user);
+            await _db.SaveChangesAsync();
+        }
+
         private static string HashPassword(string password)
         {
             using var sha256 = System.Security.Cryptography.SHA256.Create();

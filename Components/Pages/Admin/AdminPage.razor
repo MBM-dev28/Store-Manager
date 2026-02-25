@@ -25,6 +25,10 @@
 
 <div class="d-flex gap-2 mt-2">
     <button class="btn btn-primary" @onclick="OpenCreateUserModal">Add User</button>
+    @if (selectedUser is not null && selectedUser.Email != "admin@optikit.dk")
+    {
+        <button class="btn btn-outline-danger" @onclick="OpenDeleteUserModal">Delete</button>
+    }
 </div>
 
 <!-- Create User Modal -->
@@ -68,12 +72,36 @@
     </div>
 }
 
+<!-- Delete User Modal -->
+@if (showDeleteUserModal && selectedUser is not null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete User</h5>
+                    <button class="btn-close" @onclick="CloseModals"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete <strong>@selectedUser.Name</strong>?
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseModals">Cancel</button>
+                    <button class="btn btn-danger" @onclick="DeleteUser">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private List<UserVm> users = [];
     private UserVm? selectedUser;
     private string? errorMessage;
 
     private bool showCreateUserModal;
+    private bool showDeleteUserModal;
 
     private string formName = string.Empty;
     private string formEmail = string.Empty;
@@ -101,7 +129,27 @@
 
     private async Task LoadUsers() => users = await UserService.GetAllUsersAsync();
 
-    private void CloseModals() => showCreateUserModal = false;
+    private void CloseModals()
+    {
+        showCreateUserModal = false;
+        showDeleteUserModal = false;
+    }
+
+    private void OpenDeleteUserModal() => showDeleteUserModal = true;
+
+    private async Task DeleteUser()
+    {
+        if (selectedUser is null) return;
+        try
+        {
+            errorMessage = null;
+            await UserService.DeleteUserAsync(selectedUser.Id);
+            selectedUser = null;
+            await LoadUsers();
+            CloseModals();
+        }
+        catch (InvalidOperationException ex) { errorMessage = ex.Message; }
+    }
 
     private void OpenCreateUserModal()
     {
